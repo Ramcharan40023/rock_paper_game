@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MITS Project – Rock Paper Scissors (Animated)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #1f2937;
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 40px;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #3b82f6;
+      color: white;
+      transition: transform 0.15s ease, background 0.2s;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    button:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      text-align: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .winner {
+      color: green;
+    }
+
+    .loser {
+      color: red;
+    }
+
+    .draw {
+      color: #6b7280;
+    }
+
+    .final-message {
+      margin-top: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .reset-btn {
+      margin-top: 25px;
+      background-color: #ef4444;
+    }
+
+    .reset-btn:hover {
+      background-color: #dc2626;
+    }
+
+    .round-count {
+      font-size: 16px;
+      color: #4b5563;
+      margin-bottom: 10px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🪨📄✂️ Rock Paper Scissors</h1>
+
+  <div class="scoreboard">
+    <div>👤 Player: <span id="playerScore">0</span></div>
+    <div>💻 Computer: <span id="computerScore">0</span></div>
+  </div>
+
+  <div class="round-count" id="roundInfo">Round 1 of 10</div>
+
+  <div class="buttons">
+    <button id="rockBtn" onclick="play('rock')">✊ Rock</button>
+    <button id="paperBtn" onclick="play('paper')">📄 Paper</button>
+    <button id="scissorsBtn" onclick="play('scissors')">✂️ Scissors</button>
+  </div>
+
+  <div class="result" id="gameResult">Make your move to start!</div>
+  <div class="final-message" id="finalMessage"></div>
+
+  <button class="reset-btn" onclick="resetGame()">🔄 Reset Game</button>
+
+  <script>
+    let playerScore = 0;
+    let computerScore = 0;
+    let round = 1;
+    const maxRounds = 10;
+
+    function play(playerChoice) {
+      const choices = ["rock", "paper", "scissors"];
+      const computerChoice = choices[Math.floor(Math.random() * 3)];
+      let resultText = "";
+      let resultClass = "";
+
+      if (playerChoice === computerChoice) {
+        resultText = `It's a draw! You both chose ${playerChoice}.`;
+        resultClass = "draw";
+      } else if (
+        (playerChoice === "rock" && computerChoice === "scissors") ||
+        (playerChoice === "paper" && computerChoice === "rock") ||
+        (playerChoice === "scissors" && computerChoice === "paper")
+      ) {
+        playerScore++;
+        resultText = `✅ You win! ${capitalize(playerChoice)} beats ${capitalize(computerChoice)}.`;
+        resultClass = "winner";
+      } else {
+        computerScore++;
+        resultText = `❌ You lose! ${capitalize(computerChoice)} beats ${capitalize(playerChoice)}.`;
+        resultClass = "loser";
+      }
+
+      document.getElementById('gameResult').innerHTML = `
+        <div class="${resultClass}">${resultText}</div>
+      `;
+      updateScores();
+      updateRoundInfo();
+
+      if (round === maxRounds) {
+        showFinalResult();
+        disableButtons();
+      }
+
+      round++;
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function updateScores() {
+      document.getElementById('playerScore').textContent = playerScore;
+      document.getElementById('computerScore').textContent = computerScore;
+    }
+
+    function updateRoundInfo() {
+      const info = document.getElementById('roundInfo');
+      if (round < maxRounds) {
+        info.textContent = `Round ${round + 1} of ${maxRounds}`;
+      } else {
+        info.textContent = `Round ${maxRounds} of ${maxRounds}`;
+      }
+    }
+
+    function disableButtons() {
+      document.getElementById('rockBtn').disabled = true;
+      document.getElementById('paperBtn').disabled = true;
+      document.getElementById('scissorsBtn').disabled = true;
+    }
+
+    function showFinalResult() {
+      const final = document.getElementById('finalMessage');
+      let message = '';
+
+      if (playerScore > computerScore) {
+        message = `<div class="winner">🎉 Congratulations! You won the game!</div>`;
+      } else if (playerScore < computerScore) {
+        message = `<div class="loser">😞 Sorry! You lost the game!</div>`;
+      } else {
+        message = `<div class="draw">😐 It's a tie!</div>`;
+      }
+
+      final.innerHTML = message;
+    }
+
+    function resetGame() {
+      playerScore = 0;
+      computerScore = 0;
+      round = 1;
+      updateScores();
+      updateRoundInfo();
+      document.getElementById('gameResult').innerHTML = "Make your move to start!";
+      document.getElementById('finalMessage').innerHTML = '';
+      document.getElementById('rockBtn').disabled = false;
+      document.getElementById('paperBtn').disabled = false;
+      document.getElementById('scissorsBtn').disabled = false;
+    }
+  </script>
+
+</body>
+</html>
